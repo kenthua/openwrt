@@ -1,0 +1,79 @@
+name: Build image
+
+on:
+  schedule:
+    - cron: '00 02 * * *'
+  push:
+    branches: [ openwrt-21.02-tweaks ]
+    tags:
+      - "*.*.*"  
+  pull_request:
+    branches: [ openwrt-21.02-tweaks ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install dependencies
+      run: |
+        sudo apt-get update &&\
+        sudo apt-get install -y \
+          time git-core subversion build-essential g++ bash make \
+          libssl-dev patch libncurses5 libncurses5-dev zlib1g-dev gawk \
+          flex gettext wget unzip xz-utils python python-distutils-extra \
+          python3 python3-distutils-extra rsync curl libsnmp-dev liblzma-dev \
+          libpam0g-dev cpio rsync
+    - name: initialize build image
+      run: |
+        ./scripts/feeds update -a &&\
+        ./scripts/feeds install -a
+    - name: prep config
+      run: |
+        cp configs/OrangePi_R1_Plus_LTS_defconfig .config
+        make defconfig
+    - name: build using make
+      run: |
+        make -j $(nproc)
+    - name: determine release files
+      id: release-files
+      run: |
+        cd bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "::set-output name=status::success"
+    - name: create release tag
+      id: tag
+      run: |
+        OPENWRT_VERSION=$(cat include/version.mk  | grep "VERSION_NUMBER\:\=\$(if" | cut -d, -f3 | cut -d ")" -f1)
+        echo "::set-output name=release_tag::$(date +"${OPENWRT_VERSION}-%Y%m%d%H%M")"
+        echo "::set-output name=status::success"
+    - name: generate artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: openwrt-image
+        path: ${{ env.FIRMWARE }}
+    - name: make a release
+      uses: softprops/action-gh-release@v1
+      # uncomment if only tags should be released, we are generating tags, so we are good
+      # if: startsWith(github.ref, 'refs/tags/')
+      with:
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        files: ${{ env.FIRMWARE }}/*
+    - name: delete workflow runs
+      uses: GitRML/delete-workflow-runs@v1.2.2
+      with:
+        retain_days: 1
+        keep_minimum_runs: 5
+    - name: remove old releases
+      uses: dev-drprasad/delete-older-releases@v0.2.0
+      with:
+        keep_latest: 5
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
