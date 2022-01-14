@@ -38,16 +38,21 @@ jobs:
     - name: build using make
       run: |
         make -j $(nproc)
-        cp .config config-used
+    - name: determine release files
+      id: release-files
+      run: |
+        cd bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        echo "::set-output name=status::success"
     - name: generate artifact
       uses: actions/upload-artifact@v2
       with:
         name: openwrt-image
-        path: bin/targets/rockchip/armv8/openwrt-rockchip-armv8-*
+        # path: bin/targets/rockchip/armv8/openwrt-rockchip-armv8-*
+        path: ${{ env.FIRMWARE }}
     - name: make a release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: |
-          config-used
-          bin/targets/rockchip/armv8/openwrt-rockchip-armv8-*
+        files: ${{ env.FIRMWARE }}
