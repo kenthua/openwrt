@@ -24,7 +24,18 @@ jobs:
         libpam0g-dev cpio rsync
     - name: test
       run: touch ${HOME}/abc
+    - run: ls -la
+    - name: build image
+      run: |-
+        ./scripts/feeds update -a &&\
+        ./scripts/feeds install -a &&\
+        cp configs/OrangePi_R1_Plus_LTS_defconfig .config &&\
+        make defconfig
+    - uses: actions/upload-artifact@v2
+      with:
+        name: config
+        path: .config
     - uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: ${HOME}/abc
+        path: /home/ubuntu/abc
