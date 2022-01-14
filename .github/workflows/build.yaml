@@ -22,14 +22,18 @@ jobs:
         flex gettext wget unzip xz-utils python python-distutils-extra \
         python3 python3-distutils-extra rsync curl libsnmp-dev liblzma-dev \
         libpam0g-dev cpio rsync
-    - name: build image
+    - name: initialize build image
       run: |-
         ./scripts/feeds update -a &&\
-        ./scripts/feeds install -a &&\
+        ./scripts/feeds install -a
+    - name: prep config
+      run: |-
         cp configs/OrangePi_R1_Plus_LTS_defconfig .config &&\
-        make defconfig &&\
-        make -j $(nproc)
-    - uses: actions/upload-artifact@v2
+        make defconfig
+    - name: build using make
+      run: make -j $(nproc)
+    - name: generate artifact
+      uses: actions/upload-artifact@v2
       with:
         name: openwrt-image
         path: bin/targets/rockchip/armv8/openwrt-rockchip-armv8-*
