@@ -5448,31 +5448,31 @@ CONFIG_POSTFIX_PCRE=y
 #
 # Download Manager
 #
-CONFIG_PACKAGE_ariang=y
+# CONFIG_PACKAGE_ariang=y
 # CONFIG_PACKAGE_ariang-nginx is not set
 # CONFIG_PACKAGE_leech is not set
-CONFIG_PACKAGE_webui-aria2=y
+# CONFIG_PACKAGE_webui-aria2=y
 # end of Download Manager
 
 #
 # File Transfer
 #
-CONFIG_PACKAGE_aria2=y
+# CONFIG_PACKAGE_aria2=y
 
 #
 # Aria2 Configuration
 #
-CONFIG_ARIA2_OPENSSL=y
+# CONFIG_ARIA2_OPENSSL=y
 # CONFIG_ARIA2_GNUTLS is not set
 # CONFIG_ARIA2_NOSSL is not set
 # CONFIG_ARIA2_LIBXML2 is not set
 # CONFIG_ARIA2_EXPAT is not set
-CONFIG_ARIA2_NOXML=y
-CONFIG_ARIA2_BITTORRENT=y
+# CONFIG_ARIA2_NOXML=y
+# CONFIG_ARIA2_BITTORRENT=y
 # CONFIG_ARIA2_SFTP is not set
 # CONFIG_ARIA2_ASYNC_DNS is not set
 # CONFIG_ARIA2_COOKIE is not set
-CONFIG_ARIA2_WEBSOCKET=y
+# CONFIG_ARIA2_WEBSOCKET=y
 # end of Aria2 Configuration
 
 # CONFIG_PACKAGE_atftp is not set
